@@ -10,8 +10,8 @@ const observable = new Observable(subscriber => {
     subscriber.next('Hello');
     subscriber.next('world');
     subscriber.complete();
-    subscriber.next('Hello');
-    subscriber.next('world');
 });
 
-observable.subscribe(observer);
+observable.subscribe(
+    value => console.log('next', value)
+);
