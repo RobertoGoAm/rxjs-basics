@@ -1,4 +1,12 @@
-import { range } from "rxjs";
+import 'regenerator-runtime/runtime';
+import { of, from } from "rxjs";
+
+function* hello() {
+  yield 'Hello';
+  yield 'World';
+}
+
+const iterator = hello();
 
 const observer = {
   next: val => console.log('next', val),
@@ -6,6 +14,6 @@ const observer = {
   complete: () => console.log('complete')
 };
 
-const source$ = range(1,5);
+const source$ = from(iterator);
 
 source$.subscribe(observer);
