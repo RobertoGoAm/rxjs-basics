@@ -1,4 +1,4 @@
-import { fromEvent } from "rxjs";
+import { range } from "rxjs";
 
 const observer = {
   next: val => console.log('next', val),
@@ -6,12 +6,6 @@ const observer = {
   complete: () => console.log('complete')
 };
 
-const source$ = fromEvent(document, 'keyup');
+const source$ = range(1,5);
 
-const subOne = source$.subscribe(observer);
-const subTwo = source$.subscribe(observer);
-
-setTimeout(() => {
-  console.log('unsubscribing');
-  subOne.unsubscribe();
-}, 3000);
+source$.subscribe(observer);
