@@ -1,19 +1,6 @@
 import 'regenerator-runtime/runtime';
-import { of, from } from "rxjs";
+import { interval, timer } from "rxjs";
 
-function* hello() {
-  yield 'Hello';
-  yield 'World';
-}
+const timer$ = timer(2000);
 
-const iterator = hello();
-
-const observer = {
-  next: val => console.log('next', val),
-  error: err => console.log('error', err),
-  complete: () => console.log('complete')
-};
-
-const source$ = from(iterator);
-
-source$.subscribe(observer);
+timer$.subscribe(console.log);
