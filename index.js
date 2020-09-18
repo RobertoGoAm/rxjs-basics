@@ -14,4 +14,4 @@ const subTwo = source$.subscribe(observer);
 setTimeout(() => {
   console.log('unsubscribing');
   subOne.unsubscribe();
-}, 3000)
+}, 3000);
