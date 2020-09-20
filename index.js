@@ -1,31 +1,17 @@
 import 'regenerator-runtime/runtime';
-import { fromEvent } from "rxjs";
-import { map } from "rxjs/operators";
+import { from, interval } from "rxjs";
+import { reduce, take } from "rxjs/operators";
 
-// Helpers
-function calculateScrollPercent(element) {
-    const {
-        scrollTop,
-        scrollHeight,
-        clientHeight
-    } = element;
+const numbers = [1,2,3,4,5];
 
-    return (scrollTop / (scrollHeight - clientHeight)) * 100;
-}
+const totalReducer = (accumulator, currentValue) => {
+    return accumulator + currentValue;
+};
 
-// Elements
-const progressBar = document.querySelector(
-    '.progress-bar'
-);
-
-
-// Streams
-const scroll$ = fromEvent(document, 'scroll');
-const progress$ = scroll$.pipe(
-    // Percent progress
-    map(({target}) => calculateScrollPercent(target.scrollingElement))
-)
-
-progress$.subscribe(percent => {
-    progressBar.style.width = `${percent}%`;
+interval(1000).pipe(
+    take(3),
+    reduce(totalReducer, 0)
+).subscribe({
+    next: console.log,
+    complete: () => console.log('Complete!')
 });
