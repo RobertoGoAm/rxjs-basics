@@ -1,22 +1,28 @@
 import 'regenerator-runtime/runtime';
-import { from } from "rxjs";
-import { map, reduce, scan } from "rxjs/operators";
+import { interval } from "rxjs";
+import { filter, mapTo, scan } from "rxjs/operators";
 
-const numbers = [1,2,3,4,5];
-const users = [
-    { name: 'Brian', loggedIn: false, token: null },
-    { name: 'Brian', loggedIn: true, token: 'abc' },
-    { name: 'Brian', loggedIn: true, token: '123' }
-];
-
-const state$ = from(users).pipe(
-    scan((accumulator, currentValue) => {
-        return { ...accumulator, ...currentValue };
-    }, {})
-)
-
-const name$ = state$.pipe(
-    map(state => state.name)
+// Elem refs
+const countdown = document.getElementById(
+    'countdown'
+);
+const message = document.getElementById(
+    'message'
 );
 
-name$.subscribe(console.log)
+// Streams
+const counter$ = interval(1000);
+
+counter$.pipe(
+    mapTo(-1),
+    scan((accumulator, current) => {
+        return accumulator + current;
+    }, 10),
+    filter(value => value >= 0)
+).subscribe(value => {
+    countdown.innerHTML = value;
+
+    if (!value) {
+        message.innerHTML = 'Liftoff!';
+    }
+});
