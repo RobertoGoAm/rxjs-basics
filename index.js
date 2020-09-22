@@ -1,17 +1,27 @@
 import 'regenerator-runtime/runtime';
-import { of, fromEvent, from } from "rxjs";
-import { take, map, first } from "rxjs/operators";
+import { interval } from "rxjs";
+import { scan, mapTo, filter, tap, takeWhile } from "rxjs/operators";
 
-const numbers$ = of(1,2,3,4,5);
-const click$ = fromEvent(document, 'click');
+// elem refs
+const countdown = document.getElementById('countdown');
+const message = document.getElementById('message');
 
-click$.pipe(
-    map(event => ({
-        x: event.clientX,
-        y: event.clientY,
-    })),
-    first(({y}) => y > 200)
-).subscribe({
-    next: console.log,
-    complete: () => console.log('Complete!')
-});
+// streams
+const counter$ = interval(1000);
+
+counter$
+  .pipe(
+    mapTo(-1),
+    scan((accumulator, current) => {
+      return accumulator + current;
+    }, 5),
+    tap(console.log),
+    takeWhile(value => value >= 0)
+  )
+  .subscribe(value => {
+    countdown.innerHTML = value;
+
+    if (!value) {
+      message.innerHTML = 'Liftoff!';
+    }
+  });
