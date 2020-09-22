@@ -1,20 +1,17 @@
 import 'regenerator-runtime/runtime';
-import { fromEvent } from "rxjs";
-import { map, tap, filter } from "rxjs/operators";
+import { of, fromEvent, from } from "rxjs";
+import { take, map, first } from "rxjs/operators";
 
-// Elements
-const codeElem = document.getElementById('code');
+const numbers$ = of(1,2,3,4,5);
+const click$ = fromEvent(document, 'click');
 
-// Streams
-const keyup$ = fromEvent(document, "keyup");
-const keycode$ = keyup$.pipe(
-    map(event => event.code),
-    tap(code => {
-        codeElem.innerHTML = code;
-    })
-);
-const enter$ = keycode$.pipe(
-    filter(code => code === 'Enter')
-);
-
-enter$.subscribe(console.log);
+click$.pipe(
+    map(event => ({
+        x: event.clientX,
+        y: event.clientY,
+    })),
+    first(({y}) => y > 200)
+).subscribe({
+    next: console.log,
+    complete: () => console.log('Complete!')
+});
