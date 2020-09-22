@@ -1,30 +1,22 @@
 import 'regenerator-runtime/runtime';
-import { fromEvent, interval } from "rxjs";
-import { scan, mapTo, tap, takeWhile, takeUntil } from "rxjs/operators";
+import { from } from 'rxjs';
+import { distinctUntilKeyChanged, scan, map } from 'rxjs/operators';
 
-// elem refs
-const countdown = document.getElementById('countdown');
-const message = document.getElementById('message');
-const abortButton = document.getElementById('abort');
+const user = [
+  { name: 'Brian', loggedIn: false, token: null },
+  { name: 'Brian', loggedIn: true, token: 'abc' },
+  { name: 'Brian', loggedIn: true, token: '123' }
+];
 
-// streams
-const counter$ = interval(1000);
-const abortClick$ = fromEvent(abortButton, 'click');
+const state$ = from(user).pipe(
+  scan((accumulator, currentValue) => {
+    return { ...accumulator, ...currentValue };
+  }, {})
+);
 
-counter$
-  .pipe(
-    mapTo(-1),
-    scan((accumulator, current) => {
-      return accumulator + current;
-    }, 5),
-    tap(console.log),
-    takeWhile(value => value >= 0),
-    takeUntil(abortClick$)
-  )
-  .subscribe(value => {
-    countdown.innerHTML = value;
+const name$ = state$.pipe(
+  distinctUntilKeyChanged('name'),
+  map(state => state.name)
+);
 
-    if (!value) {
-      message.innerHTML = 'Liftoff!';
-    }
-  });
+name$.subscribe(console.log);
