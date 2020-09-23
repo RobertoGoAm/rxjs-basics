@@ -1,16 +1,31 @@
 import 'regenerator-runtime/runtime';
-import { from, fromEvent, interval } from 'rxjs';
-import { debounce, debounceTime, distinctUntilChanged, pluck } from "rxjs/operators";
+import { asyncScheduler, fromEvent } from 'rxjs';
+import { map, throttleTime, tap } from 'rxjs/operators';
+
+function calculateScrollPercent(element) {
+  const { scrollTop, scrollHeight, clientHeight } = element;
+
+  return (scrollTop / (scrollHeight - clientHeight)) * 100;
+}
 
 // Elements
-const inputBox = document.getElementById('text-input');
+const progressBar = document.querySelector(
+  '.progress-bar'
+);
 
 // Streams
-const click$ = fromEvent(document, 'click');
-const input$ = fromEvent(inputBox, 'keyup');
-
-input$.pipe(
-  debounce(() => interval(1000)),
-  pluck('target', 'value'),
-  distinctUntilChanged()
-).subscribe(console.log)
+const scroll$ = fromEvent(document, 'scroll');
+const progress$ = scroll$.pipe(
+  throttleTime(30, asyncScheduler, {
+    leading: false,
+    trailing: true
+  }),
+  map(({ target }) => calculateScrollPercent(
+    target.scrollingElement
+  )),
+  tap(console.log)
+);
+ 
+progress$.subscribe(percent => {
+  progressBar.style.width = `${percent}%`;
+});
