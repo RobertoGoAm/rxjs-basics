@@ -1,22 +1,16 @@
 import 'regenerator-runtime/runtime';
-import { from } from 'rxjs';
-import { distinctUntilKeyChanged, scan, map } from 'rxjs/operators';
+import { from, fromEvent, interval } from 'rxjs';
+import { debounce, debounceTime, distinctUntilChanged, pluck } from "rxjs/operators";
 
-const user = [
-  { name: 'Brian', loggedIn: false, token: null },
-  { name: 'Brian', loggedIn: true, token: 'abc' },
-  { name: 'Brian', loggedIn: true, token: '123' }
-];
+// Elements
+const inputBox = document.getElementById('text-input');
 
-const state$ = from(user).pipe(
-  scan((accumulator, currentValue) => {
-    return { ...accumulator, ...currentValue };
-  }, {})
-);
+// Streams
+const click$ = fromEvent(document, 'click');
+const input$ = fromEvent(inputBox, 'keyup');
 
-const name$ = state$.pipe(
-  distinctUntilKeyChanged('name'),
-  map(state => state.name)
-);
-
-name$.subscribe(console.log);
+input$.pipe(
+  debounce(() => interval(1000)),
+  pluck('target', 'value'),
+  distinctUntilChanged()
+).subscribe(console.log)
