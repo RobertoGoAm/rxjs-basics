@@ -1,10 +1,9 @@
 import 'regenerator-runtime/runtime';
-import { fromEvent, interval } from 'rxjs';
-import { sample, map } from "rxjs/operators";
+import { fromEvent } from 'rxjs';
+import { auditTime } from "rxjs/operators";
 
 const click$ = fromEvent(document, 'click');
-const timer$ = interval(1000);
 
-timer$.pipe(
-  sample(click$)
+click$.pipe(
+  auditTime(4000)
 ).subscribe(console.log);
