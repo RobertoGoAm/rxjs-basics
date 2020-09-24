@@ -1,9 +1,23 @@
 import 'regenerator-runtime/runtime';
 import { fromEvent } from 'rxjs';
-import { auditTime } from "rxjs/operators";
+import { ajax } from "rxjs/ajax";
+import { debounceTime, mergeMap } from "rxjs/operators";
 
-const click$ = fromEvent(document, 'click');
+// Elements
+const textInput = document.getElementById(
+  'text-input'
+);
 
-click$.pipe(
-  auditTime(4000)
+// Streams
+const input$ = fromEvent(textInput, 'keyup');
+
+input$.pipe(
+    debounceTime(1000),
+    mergeMap((event) => {
+      const term = event.target.value;
+
+      return ajax.getJSON(
+        `https://api.github.com/users/${term}`
+        );
+    }),
 ).subscribe(console.log);
