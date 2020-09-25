@@ -1,23 +1,23 @@
 import 'regenerator-runtime/runtime';
-import { fromEvent } from 'rxjs';
+import { fromEvent, pipe } from 'rxjs';
 import { ajax } from "rxjs/ajax";
-import { debounceTime, mergeMap } from "rxjs/operators";
-
-// Elements
-const textInput = document.getElementById(
-  'text-input'
-);
+import { map, mergeMap } from "rxjs/operators";
 
 // Streams
-const input$ = fromEvent(textInput, 'keyup');
+const click$ = fromEvent(document, 'click');
 
-input$.pipe(
-    debounceTime(1000),
-    mergeMap((event) => {
-      const term = event.target.value;
+const coordinates$ = click$.pipe(
+  map(event => ({
+    x: event.clientX,
+    y: event.clientY
+  }))
+);
 
-      return ajax.getJSON(
-        `https://api.github.com/users/${term}`
-        );
-    }),
-).subscribe(console.log);
+const coordinatesWithSave$ = coordinates$.pipe(
+  mergeMap(coords => ajax.post(
+    'https://www.mocky.io/v2/5185415ba171da3a00704eed',
+    coords
+  ))
+);
+
+coordinatesWithSave$.subscribe(console.log)
