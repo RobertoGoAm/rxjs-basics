@@ -1,25 +1,26 @@
 import 'regenerator-runtime/runtime';
-import { of, fromEvent } from 'rxjs';
-import { delay, concatMap } from "rxjs/operators";
+import { ajax } from "rxjs/ajax";
+import { fromEvent } from 'rxjs';
+import { exhaustMap } from "rxjs/operators";
 
-const saveAnswer = answer => {
-  return of(`Saved: ${answer}`).pipe(
-    delay(1500)
-  );
+const authenticateUser = () => {
+  return ajax.post(
+    'https://reqres.in/api/login',
+    {
+      email: 'eve.holt@reqres.in',
+      password: 'cityslicka'
+    }
+  )
 };
 
 // Elements
-const radioButtons = document.querySelectorAll(
-  '.radio-option'
+const loginButton = document.getElementById(
+  'login'
 );
 
 // Streams
-const answerChange$ = fromEvent(
-  radioButtons, 'click'
-);
+const login$ = fromEvent(loginButton, 'click');
 
-answerChange$.pipe(
-  concatMap(event => saveAnswer(
-    event.target.value
-  ))
+login$.pipe(
+  exhaustMap(() => authenticateUser())
 ).subscribe(console.log);
