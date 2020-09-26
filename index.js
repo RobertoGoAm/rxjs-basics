@@ -1,32 +1,25 @@
 import 'regenerator-runtime/runtime';
-import { fromEvent, pipe } from 'rxjs';
-import { ajax } from "rxjs/ajax";
-import { debounceTime, distinctUntilChanged, map, mergeMap, pluck, switchMap } from "rxjs/operators";
+import { of, fromEvent } from 'rxjs';
+import { delay, concatMap } from "rxjs/operators";
 
-const BASE_URL = "https://api.openbrewerydb.org/breweries";
+const saveAnswer = answer => {
+  return of(`Saved: ${answer}`).pipe(
+    delay(1500)
+  );
+};
 
 // Elements
-const inputBox = document.getElementById(
-  'text-input'
-);
-const typeaheadContainer = document.getElementById(
-  'typeahead-container'
+const radioButtons = document.querySelectorAll(
+  '.radio-option'
 );
 
 // Streams
-const input$ = fromEvent(inputBox, 'keyup');
+const answerChange$ = fromEvent(
+  radioButtons, 'click'
+);
 
-input$.pipe(
-  debounceTime(200),
-  pluck('target', 'value'),
-  distinctUntilChanged(),
-  switchMap(searchTerm => {
-    return ajax.getJSON(
-      `${BASE_URL}?by_name=${searchTerm}`
-    )
-  })
-).subscribe(response => {
-  typeaheadContainer.innerHTML = response.map(
-    b => b.name
-  ).join('<br>');
-});
+answerChange$.pipe(
+  concatMap(event => saveAnswer(
+    event.target.value
+  ))
+).subscribe(console.log);
