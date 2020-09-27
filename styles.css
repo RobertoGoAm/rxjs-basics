@@ -79,3 +79,16 @@ body {
   width: 0%;
   background: #ff16b7;
 }
+
+#start, #stop {
+  color: white;
+  margin-bottom: 10px;
+}
+
+#start {
+  background: green;
+}
+
+#stop {
+  background: red;
+}
