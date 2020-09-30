@@ -1,43 +1,32 @@
 import 'regenerator-runtime/runtime';
-import { fromEvent, interval, merge, EMPTY } from "rxjs";
-import {
-  scan,
-  mapTo,
-  tap,
-  switchMap,
-  takeUntil,
-  startWith,
-  takeWhile, take
-} from "rxjs/operators";
+import { fromEvent, combineLatest, interval } from "rxjs";
+import { filter, map, withLatestFrom } from "rxjs/operators";
 
 // Elements
-const countdown = document.getElementById('countdown');
-const message = document.getElementById('message');
-const startButton = document.getElementById('start');
-const pauseButton = document.getElementById('pause');
+const first = document.getElementById('first');
+const second = document.getElementById('second');
 
 // Streams
-const counter$ = interval(1000);
-const startClick$ = fromEvent(startButton, 'click');
-const pauseClick$ = fromEvent(pauseButton, 'click');
+const keyup$ = fromEvent(document, 'keyup');
+const click$ = fromEvent(document, 'click');
 
-const COUNTDOWN_FROM = 10; 
+// Helpers
+const keyupAsValue = elem => {
+  return fromEvent(elem, 'keyup').pipe(
+    map(event => event.target.valueAsNumber)
+  )
+};
 
-merge(
-  startClick$.pipe(mapTo(true)),
-  pauseClick$.pipe(mapTo(false))
-).pipe(
-  switchMap(shouldStart => shouldStart ? counter$ : EMPTY),
-  mapTo(-1),
-  scan((accumulator, current) => {
-    return accumulator + current;
-  }, COUNTDOWN_FROM),
-  takeWhile(value => value >= 0),
-  startWith(COUNTDOWN_FROM)
-).subscribe(value => {
-  countdown.innerHTML = value;
+click$.pipe(
+  withLatestFrom(interval(1000))
+).subscribe(console.log);
 
-  if (!value) {
-    message.innerHTML = 'Liftoff!';
-  }
-})
+combineLatest([
+  keyupAsValue(first),
+  keyupAsValue(second)
+]).pipe(
+  filter(([first, second]) => {
+    return !isNaN(first) && !isNaN(second);
+  }),
+  map(([first, second]) => first + second)
+).subscribe(console.log);
