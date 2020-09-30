@@ -1,32 +1,15 @@
 import 'regenerator-runtime/runtime';
-import { fromEvent, combineLatest, interval } from "rxjs";
-import { filter, map, withLatestFrom } from "rxjs/operators";
+import { of, forkJoin } from "rxjs";
 
-// Elements
-const first = document.getElementById('first');
-const second = document.getElementById('second');
+const GITHUB_API_BASE = 'http://api.github.com';
 
-// Streams
-const keyup$ = fromEvent(document, 'keyup');
-const click$ = fromEvent(document, 'click');
-
-// Helpers
-const keyupAsValue = elem => {
-  return fromEvent(elem, 'keyup').pipe(
-    map(event => event.target.valueAsNumber)
-  )
-};
-
-click$.pipe(
-  withLatestFrom(interval(1000))
-).subscribe(console.log);
-
-combineLatest([
-  keyupAsValue(first),
-  keyupAsValue(second)
-]).pipe(
-  filter(([first, second]) => {
-    return !isNaN(first) && !isNaN(second);
-  }),
-  map(([first, second]) => first + second)
+forkJoin(
+  {
+    user: ajax.getJSON(
+      `${GITHUB_API_BASE}/users/reactivex`
+    ),
+    repo: ajax.getJSON(
+      `${GITHUB_API_BASE}/users/reactivex/repos`
+    ),
+  }
 ).subscribe(console.log);
