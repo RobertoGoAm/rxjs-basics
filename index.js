@@ -1,59 +1,21 @@
 import "regenerator-runtime/runtime";
-import { combineLatest, fromEvent, of } from "rxjs";
-import { delay, filter, map, mergeMap, share } from "rxjs/operators";
+import { interval, Subject } from "rxjs";
+import { tap } from "rxjs/operators";
 
-function calculateMortgage(interest, loanAmount, loanLength) {
-  const calculatedInterest = interest / 1200;
-  const total =
-    (loanAmount * calculatedInterest) /
-    (1 - Math.pow(1 / (1 + calculatedInterest), loanLength));
-
-  return total.toFixed(2);
-}
-
-const loanAmount = document.getElementById("loanAmount");
-const interest = document.getElementById("interest");
-const loanLength = document.querySelectorAll(".loanLength");
-const expected = document.getElementById("expected");
-
-// Helpers
-const createInputValueStream = elem => {
-  return fromEvent(elem, 'input').pipe(
-    map(event => parseFloat(event.target.value))
-  )
+const observer = {
+  next: val => console.log('next', val),
+  error: err => console.log('error', err),
+  complete: () => console.log('complete')
 };
 
-const saveResponse = mortageAmount => {
-  return of(mortageAmount).pipe(
-    delay(1000)
-  )
-}
+const subject = new Subject();
 
-// Stream
-const interest$ = createInputValueStream(interest);
-const loanLength$ = createInputValueStream(loanLength);
-const loanAmount$ = createInputValueStream(loanAmount);
+const subscription = subject.subscribe(observer);
 
-const calculation$ = combineLatest([
-  interest$,
-  loanLength$,
-  loanAmount$,
-]).pipe(
-  map(([interest, loanAmount, loanLength]) => {
-    return calculateMortgage(
-      interest, loanAmount, loanLength
-    )
-  }),
-  filter(mortageAmount => !isNaN(mortageAmount)),
-  share()
+const subscriptionTwo = subject.subscribe(observer);
+
+const interval$ = interval(2000).pipe(
+  tap(value => console.log('new interval', value))
 );
 
-calculation$.subscribe(mortageAmount => {
-  expected.innerHTML = mortageAmount;
-});
-
-calculation$.pipe(
-  mergeMap(mortageAmount => saveResponse(
-    mortageAmount
-  ))
-).subscribe();
+// socket$.subscribe(subject);
