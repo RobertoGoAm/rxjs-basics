@@ -1,21 +1,16 @@
 import "regenerator-runtime/runtime";
-import { interval, Subject } from "rxjs";
-import { tap } from "rxjs/operators";
+import { loadingService } from "./loadingService";
 
-const observer = {
-  next: val => console.log('next', val),
-  error: err => console.log('error', err),
-  complete: () => console.log('complete')
-};
+const loadingOverlay = document.getElementById('loading-overlay');
 
-const subject = new Subject();
+loadingService.loadingStatus$.subscribe(isLoading => {
+  if (isLoading) {
+    loadingOverlay.classList.add('open');
+  } else {
+    loadingOverlay.classList.remove('open');
+  }
+})
 
-const subscription = subject.subscribe(observer);
+loadingService.showLoading();
 
-const subscriptionTwo = subject.subscribe(observer);
-
-const interval$ = interval(2000).pipe(
-  tap(value => console.log('new interval', value))
-);
-
-// socket$.subscribe(subject);
+setTimeout(() => loadingService.hideLoading(), 3000);
