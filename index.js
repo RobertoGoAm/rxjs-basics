@@ -1,15 +1,17 @@
 import "regenerator-runtime/runtime";
-import { from } from "rxjs";
-import { loadingService } from './loadingService';
+import { ObservableStore } from "./store";
 
-const loadingOverlay = document.getElementById("loading-overlay");
-
-loadingService.loadingStatus$.subscribe((isLoading) => {
-  if (isLoading) {
-    loadingOverlay.classList.add("open");
-  } else {
-    loadingOverlay.classList.remove("open");
-  }
+const store = new ObservableStore({
+  user: 'brian',
+  isAuthenticated: false
 });
 
-setTimeout(() => loadingService.hideLoading(), 3000);
+store.selectState('user').subscribe(console.log);
+
+store.updateState({
+  user: 'joe'
+});
+
+store.updateState({
+  isAuthenticated: true
+});
