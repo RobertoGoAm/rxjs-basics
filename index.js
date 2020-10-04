@@ -1,26 +1,15 @@
 import "regenerator-runtime/runtime";
-import { Subject, interval } from "rxjs";
-import { tap, multicast, refCount, share } from "rxjs/operators";
+import { from } from "rxjs";
+import { loadingService } from './loadingService';
 
-const observer = {
-  next: val => console.log('next', val),  
-  error: err => console.log('error', err),  
-  complete: () => console.log('complete')
-};
+const loadingOverlay = document.getElementById("loading-overlay");
 
-const interval$ = interval(2000).pipe(
-  tap(i => console.log('new interval', i))
-);
+loadingService.loadingStatus$.subscribe((isLoading) => {
+  if (isLoading) {
+    loadingOverlay.classList.add("open");
+  } else {
+    loadingOverlay.classList.remove("open");
+  }
+});
 
-const multicastedInterval$ = interval$.pipe(
-  share()
-);
-
-
-const subOne = multicastedInterval$.subscribe(observer); 
-const subTwo = multicastedInterval$.subscribe(observer);
-
-setTimeout(() => {
-  subOne.unsubscribe();
-  subTwo.unsubscribe();
-}, 3000);
+setTimeout(() => loadingService.hideLoading(), 3000);
