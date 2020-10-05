@@ -1,17 +1,16 @@
 import "regenerator-runtime/runtime";
-import { ObservableStore } from "./store";
+import { ReplaySubject } from "rxjs";
 
-const store = new ObservableStore({
-  user: 'brian',
-  isAuthenticated: false
-});
+const observer = {
+  next: val => console.log('next', val),
+  error: err => console.log('error', err),
+  complete: () => console.log('complete')
+};
 
-store.selectState('user').subscribe(console.log);
+const subject = new ReplaySubject(2);
 
-store.updateState({
-  user: 'joe'
-});
+subject.next('Hello');
+subject.next('World');
+subject.next('Goodbye');
 
-store.updateState({
-  isAuthenticated: true
-});
+subject.subscribe(observer);
