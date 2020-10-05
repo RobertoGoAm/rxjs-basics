@@ -1,7 +1,5 @@
 import "regenerator-runtime/runtime";
-import { from, fromEvent } from "rxjs";
-import { ajax } from "rxjs/ajax";
-import { mergeMapTo, shareReplay } from "rxjs/operators";
+import { AsyncSubject } from "rxjs";
 
 const observer = {
   next: val => console.log('next', val),
@@ -9,19 +7,13 @@ const observer = {
   complete: () => console.log('complete')
 };
 
-const ajax$ = ajax(
-  'https://api.github.com/users/octocat'
-);
+const subject = new AsyncSubject();
 
-const click$ = fromEvent(document, 'click');
-const clickRequest$ = click$.pipe(
-  mergeMapTo(ajax$),
-  shareReplay(1, 10000)
-);
+subject.subscribe(observer);
+subject.subscribe(observer);
 
-clickRequest$.subscribe(observer);
+subject.next('Hello');
+subject.next('World');
+subject.next('Goodbye');
 
-setTimeout(() => {
-  console.log('subscribing!')
-  clickRequest$.subscribe(observer);
-}, 5000);
+subject.complete();
