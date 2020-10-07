@@ -1,5 +1,6 @@
 import "regenerator-runtime/runtime";
-import { asapScheduler, asyncScheduler, range } from "rxjs";
+import { animationFrameScheduler, asapScheduler, asyncScheduler, interval, range } from "rxjs";
+import { takeWhile } from "rxjs/operators";
 
 const observer = {
   next: val => console.log('next', val),
@@ -7,10 +8,18 @@ const observer = {
   complete: () => console.log('complete')
 };
 
-const counter = document.getElementById('counter');
+const ball = document.getElementById('ball');
 
-range(1,100000, asyncScheduler).subscribe(val => {
-  counter.innerHTML = val
-});
+// animationFrameScheduler.schedule(function(position) {
+//   ball.style.transform = `translate3d(0, ${position}px, 0)`;
 
-console.log('synchronous console.log');
+//   if (position <= 300) {
+//     this.schedule(position + 1);
+//   }
+// }, 0, 0);
+
+interval(0, animationFrameScheduler).pipe(
+  takeWhile(val => val <= 300)
+).subscribe(val => {
+  ball.style.transform = `translate3d(0, ${val}px, 0)`;
+})
